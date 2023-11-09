@@ -28,6 +28,7 @@ data class GastoListState(
 class GastoViewModel @Inject constructor(
     private val gastoRepository: GastoRepository
 ): ViewModel(){
+    var idGasto by mutableStateOf(0)
     var suplidor by mutableStateOf("")
     var nfc by mutableStateOf("")
     var concepto by mutableStateOf("")
@@ -35,6 +36,7 @@ class GastoViewModel @Inject constructor(
     var itbis by mutableStateOf(0)
     var monto by mutableStateOf(0)
     var fecha by mutableStateOf("")
+    var idSuplidor by mutableStateOf(0)
     private val _uiState = MutableStateFlow(GastoListState())
     val uiState: StateFlow<GastoListState> = _uiState.asStateFlow()
 
@@ -59,6 +61,7 @@ class GastoViewModel @Inject constructor(
     fun save(){
         viewModelScope.launch {
             val gasto = GastoDto(
+                idSuplidor = idSuplidor,
                 suplidor = suplidor,
                 nfc = nfc,
                 concepto = concepto,
@@ -71,15 +74,33 @@ class GastoViewModel @Inject constructor(
         }
     }
 
-
     fun delete(gastoId: Int, gastoDto: GastoDto) {
         viewModelScope.launch {
             gastoRepository.deleteGasto(gastoId, gastoDto)
         }
     }
 
+    fun put()
+    {
+        viewModelScope.launch {
+            val gasto = GastoDto(
+                idGasto = idGasto,
+                idSuplidor = idSuplidor,
+                suplidor = suplidor,
+                nfc = nfc,
+                concepto = concepto,
+                descuento = descuento,
+                itbis = itbis,
+                monto = monto,
+                fecha = fecha
+            )
+            gastoRepository.putGasto(idGasto, gasto)
+            limpiar()
+        }
+    }
     fun limpiar()
     {
+        idSuplidor = 0
         suplidor = ""
         nfc = ""
         concepto = ""
@@ -87,10 +108,7 @@ class GastoViewModel @Inject constructor(
         itbis = 0
         monto = 0
         fecha  = ""
+        idGasto = 0
     }
-
-
-
-
 
 }

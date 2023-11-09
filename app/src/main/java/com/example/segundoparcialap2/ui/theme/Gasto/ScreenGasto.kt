@@ -23,34 +23,37 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.segundoparcialap2.data.remote.dto.GastoDto
 
-
 @Composable
-fun ConsultaGasto(gasto: List<GastoDto>) {
-    Column(
+fun ConsultaGasto(gastos: List<GastoDto>)
+{
+    Column (
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-    )
-    {
-
-        LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            items(gasto) { gastos ->
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Id: " + gastos.idGasto.toString(),
-                    style = MaterialTheme.typography.titleMedium
+    ){
+        LazyColumn(modifier = Modifier.fillMaxWidth())
+        {
+            items(gastos) { gasto ->
+                Card (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
                 )
-                Text(
-                    text = "Fecha: " + gastos.fecha,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(text = "Suplidor: " + gastos.suplidor, style = MaterialTheme.typography.titleMedium)
-                Text(text = "Nfc: " + gastos.nfc, style = MaterialTheme.typography.titleMedium)
-                Text(text = "Concepto: " + gastos.concepto, style = MaterialTheme.typography.titleMedium)
-                Text(text = "Descuento: " + gastos.descuento, style = MaterialTheme.typography.titleMedium)
-                Text(text = "Itbis: " + gastos.itbis, style = MaterialTheme.typography.titleMedium)
-                Text(text = "Monto: " + gastos.monto, style = MaterialTheme.typography.titleMedium)
-
+                {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    )
+                    {
+                      Text(text = "ID: " + gasto.idGasto, style = MaterialTheme.typography.titleMedium)
+                      Text(text = gasto.fecha, style = MaterialTheme.typography.titleMedium)
+                      Text(text = gasto.suplidor, style = MaterialTheme.typography.titleMedium)
+                      Text(text = gasto.concepto, style = MaterialTheme.typography.titleMedium)
+                      Text(text = "NCF: " + gasto.nfc, style = MaterialTheme.typography.titleMedium)
+                      Text(text = "Itbis: " + gasto.itbis.toString(), style = MaterialTheme.typography.titleMedium)
+                      Text(text = gasto.monto.toString(), style = MaterialTheme.typography.titleMedium)  
+                    }
+                }
             }
         }
     }
