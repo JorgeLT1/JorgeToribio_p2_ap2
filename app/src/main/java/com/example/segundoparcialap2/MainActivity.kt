@@ -13,8 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.segundoparcialap2.ui.theme.Gasto.ConsultaGasto
 import com.example.segundoparcialap2.ui.theme.Gasto.GastoViewModel
+import com.example.segundoparcialap2.ui.theme.Gasto.RegistroGasto
 import com.example.segundoparcialap2.ui.theme.SegundoParcialAP2Theme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -29,16 +31,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    gastoScreen()
+                    RegistroGasto()
+
                 }
             }
         }
     }
 }
 
-@Composable
-fun gastoScreen(viewModel: GastoViewModel = hiltViewModel())
-{
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    uiState.gasto?.let {gasto -> ConsultaGasto(gasto) }
-}

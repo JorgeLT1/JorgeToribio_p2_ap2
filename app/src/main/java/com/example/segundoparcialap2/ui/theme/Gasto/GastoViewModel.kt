@@ -30,7 +30,7 @@ class GastoViewModel @Inject constructor(
 ): ViewModel(){
     var idGasto by mutableStateOf(0)
     var suplidor by mutableStateOf("")
-    var nfc by mutableStateOf("")
+    var ncf by mutableStateOf("")
     var concepto by mutableStateOf("")
     var descuento by mutableStateOf(0)
     var itbis by mutableStateOf(0)
@@ -63,7 +63,7 @@ class GastoViewModel @Inject constructor(
             val gasto = GastoDto(
                 idSuplidor = idSuplidor,
                 suplidor = suplidor,
-                nfc = nfc,
+                ncf = ncf,
                 concepto = concepto,
                 descuento = descuento,
                 itbis = itbis,
@@ -71,6 +71,7 @@ class GastoViewModel @Inject constructor(
                 fecha = fecha
             )
             gastoRepository.postGasto(gasto)
+            limpiar()
         }
     }
 
@@ -87,7 +88,7 @@ class GastoViewModel @Inject constructor(
                 idGasto = idGasto,
                 idSuplidor = idSuplidor,
                 suplidor = suplidor,
-                nfc = nfc,
+                ncf = ncf,
                 concepto = concepto,
                 descuento = descuento,
                 itbis = itbis,
@@ -102,13 +103,17 @@ class GastoViewModel @Inject constructor(
     {
         idSuplidor = 0
         suplidor = ""
-        nfc = ""
+        ncf = ""
         concepto = ""
         descuento = 0
         itbis = 0
         monto = 0
         fecha  = ""
         idGasto = 0
+    }
+
+    fun validar() : Boolean {
+        return !(idSuplidor == 0 || suplidor == "" || ncf == "" || concepto == "" || descuento == 0 || itbis == 0 || monto == 0 || fecha == "")
     }
 
 }
