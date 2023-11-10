@@ -34,17 +34,79 @@ class GastoViewModel @Inject constructor(
     var suplidor by mutableStateOf("")
     var ncf by mutableStateOf("")
     var concepto by mutableStateOf("")
-    var descuento by mutableStateOf(0)
+    var descuento by mutableStateOf(1)
     var itbis by mutableStateOf(0)
     var monto by mutableStateOf(0)
     var fecha by mutableStateOf("")
     var idSuplidor by mutableStateOf(0)
 
+    var verificarSuplidor by mutableStateOf(true)
+    var verificarNfc by mutableStateOf(true)
+    var verificarConcepto by mutableStateOf(true)
+    var verificarItbis by mutableStateOf(true)
+    var verificarMonto by mutableStateOf(true)
+    var verificarFecha by mutableStateOf(true)
+    var verficarIdSuplidor by mutableStateOf(true)
 
     private val _uiState = MutableStateFlow(GastoListState())
     val uiState: StateFlow<GastoListState> = _uiState.asStateFlow()
     fun validar(): Boolean {
-        return !(suplidor == "" || ncf == "" || concepto == "" || descuento <= 0 || itbis <= 0 || monto < 0 || fecha == "")
+
+        if(suplidor== "")
+        {
+            verificarSuplidor = false
+        }
+        else
+        {
+            verificarSuplidor = true
+        }
+
+        if(ncf == "")
+        {
+            verificarNfc = false
+        }
+        else
+        {
+            verificarNfc= true
+        }
+
+        if(concepto == "")
+        {
+            verificarConcepto = false
+        }
+        else
+        {
+            verificarConcepto = true
+        }
+
+
+        if(monto < 0)
+        {
+            verificarMonto = false
+        }
+        else
+        {
+            verificarMonto = true
+        }
+
+        if (fecha == "")
+        {
+            verificarFecha = false
+        }
+        else
+        {
+            verificarFecha = true
+        }
+        if(idSuplidor < 0)
+        {
+            verficarIdSuplidor = false
+        }
+        else
+        {
+            verficarIdSuplidor = true
+        }
+
+        return !(suplidor == "" || ncf == "" || concepto == "" || monto < 0 || fecha == "")
     }
 
     fun cargar() {
@@ -94,31 +156,29 @@ class GastoViewModel @Inject constructor(
         }
     }
 
-    fun put() {
-        viewModelScope.launch {
-            val gasto = GastoDto(
-                idGasto = idGasto,
-                idSuplidor = idSuplidor,
-                suplidor = suplidor,
-                ncf = ncf,
-                concepto = concepto,
-                descuento = descuento,
-                itbis = itbis,
-                monto = monto,
-                fecha = fecha
-            )
-            gastoRepository.putGasto(idGasto, gasto)
-            limpiar()
-            cargar()
-        }
-    }
+//    fun put() {
+//        viewModelScope.launch {
+//            val gasto = GastoDto(
+//                idGasto = idGasto,
+//                idSuplidor = idSuplidor,
+//                suplidor = suplidor,
+//                ncf = ncf,
+//                concepto = concepto,
+//                itbis = itbis,
+//                monto = monto,
+//                fecha = fecha
+//            )
+//            gastoRepository.putGasto(idGasto, gasto)
+//            limpiar()
+//            cargar()
+//        }
+//    }
 
     fun limpiar() {
         idSuplidor = 0
         suplidor = ""
         ncf = ""
         concepto = ""
-        descuento = 0
         itbis = 0
         monto = 0
         fecha = ""

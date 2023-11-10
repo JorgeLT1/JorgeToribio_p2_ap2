@@ -116,6 +116,9 @@ fun RegistroGasto(viewModel: GastoViewModel = hiltViewModel()) {
                     label = { Text(text = "Fecha") },
                     singleLine = true
                 )
+                if(viewModel.verificarFecha == false) {
+                    Text(text = "La fecha es requerido.", color = Color.Red, fontSize = 12.sp)
+                }
             }
         }
 
@@ -141,6 +144,9 @@ fun RegistroGasto(viewModel: GastoViewModel = hiltViewModel()) {
                         keyboardType = KeyboardType.Number
                     )
                 )
+                if(viewModel.verficarIdSuplidor == false) {
+                    Text(text = "El ID tiene que ser mayor a 0.", color = Color.Red, fontSize = 12.sp)
+                }
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column(
@@ -156,6 +162,9 @@ fun RegistroGasto(viewModel: GastoViewModel = hiltViewModel()) {
                     label = { Text(text = "Suplidor") },
                     singleLine = true
                 )
+                if(viewModel.verificarSuplidor == false) {
+                    Text(text = "El suplidor es requeido.", color = Color.Red, fontSize = 12.sp)
+                }
             }
 
         }
@@ -174,6 +183,9 @@ fun RegistroGasto(viewModel: GastoViewModel = hiltViewModel()) {
                     label = { Text(text = "NCF") },
                     singleLine = true
                 )
+                if(viewModel.verificarNfc == false) {
+                    Text(text = "El Nfc es requerido.", color = Color.Red, fontSize = 12.sp)
+                }
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column(
@@ -189,6 +201,10 @@ fun RegistroGasto(viewModel: GastoViewModel = hiltViewModel()) {
                     label = { Text(text = "Concepto") },
                     singleLine = true
                 )
+                if(viewModel.verificarConcepto == false) {
+                    Text(text = "El concepto es requerido.", color = Color.Red, fontSize = 12.sp)
+                }
+
             }
 
         }
@@ -201,20 +217,25 @@ fun RegistroGasto(viewModel: GastoViewModel = hiltViewModel()) {
             )
             {
                 OutlinedTextField(
-                    value = viewModel.descuento.toString(),
+                    modifier = Modifier.fillMaxWidth(),
+                    value = viewModel.monto.toString(),
                     onValueChange = {
                         val newValue = it.toIntOrNull()
                         if (newValue != null) {
-                            viewModel.descuento = newValue
+                            viewModel.monto = newValue
                         }
                     },
-                    label = { Text(text = "Descuento") },
+                    label = { Text(text = "Monto") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Next,
-                        keyboardType = KeyboardType.Number
-                    )
+                        keyboardType = KeyboardType.Number,
+
+                        )
                 )
+                if(viewModel.verificarMonto == false) {
+                    Text(text = "El monto debe ser mayor a 0.", color = Color.Red, fontSize = 12.sp)
+                }
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column(
@@ -238,35 +259,11 @@ fun RegistroGasto(viewModel: GastoViewModel = hiltViewModel()) {
                         keyboardType = KeyboardType.Number
                     )
                 )
+                if(viewModel.verificarItbis == false) {
+                    Text(text = "El itbis debe ser mayor o igual a 0.", color = Color.Red, fontSize = 12.sp)
+                }
             }
 
-        }
-
-        Row {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp)
-            )
-            {
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = viewModel.monto.toString(),
-                    onValueChange = {
-                        val newValue = it.toIntOrNull()
-                        if (newValue != null) {
-                            viewModel.monto = newValue
-                        }
-                    },
-                    label = { Text(text = "Monto") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Next,
-                        keyboardType = KeyboardType.Number,
-
-                        )
-                )
-            }
         }
 
         Row {
@@ -302,7 +299,6 @@ fun RegistroGasto(viewModel: GastoViewModel = hiltViewModel()) {
 
 
 }
-
 
 @Composable
 fun ConsultaGasto(gastos: List<GastoDto>, viewModel: GastoViewModel = hiltViewModel()) {
