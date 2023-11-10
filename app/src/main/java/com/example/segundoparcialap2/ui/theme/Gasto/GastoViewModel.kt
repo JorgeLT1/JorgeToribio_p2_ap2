@@ -9,8 +9,10 @@ import com.example.segundoparcialap2.data.remote.dto.GastoDto
 import com.example.segundoparcialap2.data.repository.GastoRepository
 import com.example.segundoparcialap2.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -27,7 +29,7 @@ data class GastoListState(
 @HiltViewModel
 class GastoViewModel @Inject constructor(
     private val gastoRepository: GastoRepository
-): ViewModel(){
+) : ViewModel() {
     var idGasto by mutableStateOf(0)
     var suplidor by mutableStateOf("")
     var ncf by mutableStateOf("")
@@ -37,10 +39,15 @@ class GastoViewModel @Inject constructor(
     var monto by mutableStateOf(0)
     var fecha by mutableStateOf("")
     var idSuplidor by mutableStateOf(0)
+
+
     private val _uiState = MutableStateFlow(GastoListState())
     val uiState: StateFlow<GastoListState> = _uiState.asStateFlow()
+    fun validar(): Boolean {
+        return !(suplidor == "" || ncf == "" || concepto == "" || descuento <= 0 || itbis <= 0 || monto < 0 || fecha == "")
+    }
 
-    init {
+    fun cargar() {
         gastoRepository.getGasto().onEach { result ->
             when (result) {
                 is Resource.Loading -> {
@@ -58,7 +65,11 @@ class GastoViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun save(){
+    init {
+        cargar()
+    }
+
+    fun save() {
         viewModelScope.launch {
             val gasto = GastoDto(
                 idSuplidor = idSuplidor,
@@ -72,17 +83,18 @@ class GastoViewModel @Inject constructor(
             )
             gastoRepository.postGasto(gasto)
             limpiar()
+            cargar()
         }
     }
 
-    fun delete(gastoId: Int, gastoDto: GastoDto) {
+    fun delete(id: Int) {
         viewModelScope.launch {
-            gastoRepository.deleteGasto(gastoId, gastoDto)
+            gastoRepository.deleteGastos(id)
+            cargar()
         }
     }
 
-    fun put()
-    {
+    fun put() {
         viewModelScope.launch {
             val gasto = GastoDto(
                 idGasto = idGasto,
@@ -97,10 +109,11 @@ class GastoViewModel @Inject constructor(
             )
             gastoRepository.putGasto(idGasto, gasto)
             limpiar()
+            cargar()
         }
     }
-    fun limpiar()
-    {
+
+    fun limpiar() {
         idSuplidor = 0
         suplidor = ""
         ncf = ""
@@ -108,12 +121,17 @@ class GastoViewModel @Inject constructor(
         descuento = 0
         itbis = 0
         monto = 0
-        fecha  = ""
+        fecha = ""
         idGasto = 0
     }
 
-    fun validar() : Boolean {
-        return !(idSuplidor == 0 || suplidor == "" || ncf == "" || concepto == "" || descuento == 0 || itbis == 0 || monto == 0 || fecha == "")
+
+    private val _isMessageShown = MutableSharedFlow<Boolean>()
+    val isMessageShownFlow = _isMessageShown.asSharedFlow()
+    fun setMessageShown() {
+        viewModelScope.launch {
+            _isMessageShown.emit(true)
+        }
     }
 
 }

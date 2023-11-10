@@ -40,6 +40,9 @@ class GastoRepository @Inject constructor(private val api: GastoApi) {
     }
 
     suspend fun postGasto(gasto: GastoDto) = api.postGasto(gasto)
-    suspend fun deleteGasto(id: Int, gasto: GastoDto) = api.deleteGasto(id, gasto)
+    suspend fun deleteGastos(id: Int): GastoDto? {
+        return api.deleteGasto(id).body()
+    }
+
     suspend fun putGasto(id: Int, gasto: GastoDto) = api.putGasto(id, gasto)
 }
