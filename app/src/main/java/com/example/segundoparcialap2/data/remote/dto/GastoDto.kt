@@ -7,7 +7,7 @@ data class GastoDto(
     var idSuplidor: Int?= null,
     var suplidor:String = "",
     var concepto: String = "",
-    var descuento: Int?= null,
+    var descuento: Int?= 0,
     var itbis: Int?= null,
     var monto: Int?= null,
 )

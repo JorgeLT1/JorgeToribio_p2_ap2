@@ -3,6 +3,7 @@ package com.example.segundoparcialap2.ui.theme.Gasto
 import android.graphics.drawable.Icon
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,6 +25,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Button
@@ -31,6 +34,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
@@ -45,7 +50,9 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -70,12 +77,27 @@ import kotlinx.coroutines.flow.collectLatest
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.toSize
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun RegistroGasto(viewModel: GastoViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+
+
+    var expanded by remember { mutableStateOf(false) }
+    var selectedItem by remember { mutableStateOf("") }
+    selectedItem = viewModel.suplidor
+    var textFiledSize by remember { mutableStateOf(Size.Zero) }
+    val icon = if (expanded) {
+        Icons.Filled.KeyboardArrowUp
+    } else {
+        Icons.Filled.KeyboardArrowDown
+    }
 
     LaunchedEffect(Unit) {
         viewModel.isMessageShownFlow.collectLatest {
@@ -116,7 +138,7 @@ fun RegistroGasto(viewModel: GastoViewModel = hiltViewModel()) {
                     label = { Text(text = "Fecha") },
                     singleLine = true
                 )
-                if(viewModel.verificarFecha == false) {
+                if (viewModel.verificarFecha == false) {
                     Text(text = "La fecha es requerido.", color = Color.Red, fontSize = 12.sp)
                 }
             }
@@ -130,39 +152,37 @@ fun RegistroGasto(viewModel: GastoViewModel = hiltViewModel()) {
             )
             {
                 OutlinedTextField(
-                    value = viewModel.idSuplidor.toString(),
+                    value = selectedItem,
                     onValueChange = {
-                        val newValue = it.toIntOrNull()
-                        if (newValue != null) {
-                            viewModel.idSuplidor = newValue
-                        }
+                        selectedItem = it
                     },
-                    label = { Text(text = "IdSuplidor") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Next,
-                        keyboardType = KeyboardType.Number
-                    )
-                )
-                if(viewModel.verficarIdSuplidor == false) {
-                    Text(text = "El ID tiene que ser mayor a 0.", color = Color.Red, fontSize = 12.sp)
-                }
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .weight(1f)
-            )
-            {
-                OutlinedTextField(
-                    value = viewModel.suplidor,
-                    onValueChange = { viewModel.suplidor = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onGloballyPositioned { coordinates ->
+                            textFiledSize = coordinates.size.toSize()
+                        },
                     label = { Text(text = "Suplidor") },
-                    singleLine = true
+                    trailingIcon = {
+                        Icon(icon, "", Modifier.clickable { expanded = !expanded })
+                    },
+                    readOnly = true,
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next)
                 )
-                if(viewModel.verificarSuplidor == false) {
+                DropdownMenu(expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.width(
+                        with(LocalDensity.current) { textFiledSize.width.toDp() }
+                    )
+                ) {
+                    viewModel.listaSuplidor.forEach { label ->
+                        DropdownMenuItem(text = { Text(text = label) }, onClick = {
+                            selectedItem = label
+                            expanded = false
+                            viewModel.suplidor = selectedItem
+                        })
+                    }
+                }
+                if (viewModel.verificarSuplidor == false) {
                     Text(text = "El suplidor es requeido.", color = Color.Red, fontSize = 12.sp)
                 }
             }
@@ -183,7 +203,7 @@ fun RegistroGasto(viewModel: GastoViewModel = hiltViewModel()) {
                     label = { Text(text = "NCF") },
                     singleLine = true
                 )
-                if(viewModel.verificarNfc == false) {
+                if (viewModel.verificarNfc == false) {
                     Text(text = "El Nfc es requerido.", color = Color.Red, fontSize = 12.sp)
                 }
             }
@@ -201,7 +221,7 @@ fun RegistroGasto(viewModel: GastoViewModel = hiltViewModel()) {
                     label = { Text(text = "Concepto") },
                     singleLine = true
                 )
-                if(viewModel.verificarConcepto == false) {
+                if (viewModel.verificarConcepto == false) {
                     Text(text = "El concepto es requerido.", color = Color.Red, fontSize = 12.sp)
                 }
 
@@ -233,7 +253,7 @@ fun RegistroGasto(viewModel: GastoViewModel = hiltViewModel()) {
 
                         )
                 )
-                if(viewModel.verificarMonto == false) {
+                if (viewModel.verificarMonto == false) {
                     Text(text = "El monto debe ser mayor a 0.", color = Color.Red, fontSize = 12.sp)
                 }
             }
@@ -259,8 +279,12 @@ fun RegistroGasto(viewModel: GastoViewModel = hiltViewModel()) {
                         keyboardType = KeyboardType.Number
                     )
                 )
-                if(viewModel.verificarItbis == false) {
-                    Text(text = "El itbis debe ser mayor o igual a 0.", color = Color.Red, fontSize = 12.sp)
+                if (viewModel.verificarItbis == false) {
+                    Text(
+                        text = "El itbis debe ser mayor o igual a 0.",
+                        color = Color.Red,
+                        fontSize = 12.sp
+                    )
                 }
             }
 
@@ -278,10 +302,16 @@ fun RegistroGasto(viewModel: GastoViewModel = hiltViewModel()) {
                 Button(
                     onClick = {
                         keyboardController?.hide()
-                        if (viewModel.validar()) {
-                            viewModel.save()
-                            viewModel.setMessageShown()
+                        if (viewModel.uiState.value.gastoActual != null) {
+                            viewModel.put()
+                        } else {
+                            keyboardController?.hide()
+                            if (viewModel.validar()) {
+                                viewModel.save()
+                                viewModel.setMessageShown()
+                            }
                         }
+
                     },
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.medium,
@@ -293,15 +323,24 @@ fun RegistroGasto(viewModel: GastoViewModel = hiltViewModel()) {
                 }
             }
         }
-
-        uiState.gasto?.let { gasto -> ConsultaGasto(gasto) }
+        ConsultaGasto(gastos = uiState.gastos, onUpdateGasto = { gastoDto ->
+            gastoDto.idGasto?.let {
+                viewModel.getGastoId(
+                    it
+                )
+            }
+        })
     }
 
 
 }
 
 @Composable
-fun ConsultaGasto(gastos: List<GastoDto>, viewModel: GastoViewModel = hiltViewModel()) {
+fun ConsultaGasto(
+    gastos: List<GastoDto>,
+    viewModel: GastoViewModel = hiltViewModel(),
+    onUpdateGasto: (GastoDto) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -384,7 +423,6 @@ fun ConsultaGasto(gastos: List<GastoDto>, viewModel: GastoViewModel = hiltViewMo
                             Text(
                                 text = "$" + formattedAmount,
                                 style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                                color = MaterialTheme.colorScheme.error
                             )
                         }
                         Divider(
@@ -402,6 +440,7 @@ fun ConsultaGasto(gastos: List<GastoDto>, viewModel: GastoViewModel = hiltViewMo
 
                             Button(
                                 onClick = {
+                                    onUpdateGasto(gasto)
                                 },
                                 modifier = Modifier
                                     .width(150.dp)
